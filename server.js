@@ -1,4 +1,5 @@
 const express = require('express');
+const { createServer } = require('http');
 const courseRouter = require("./routes/course");
 const server = express();
 
@@ -17,4 +18,6 @@ apiRoutes.forEach(route => {
     server.use(`/api/v1${route.path}`, route.route);
 });
 
-module.exports = server;
+createServer(server).listen(3000, () => {
+    console.log('Server is running on port 3000');
+});

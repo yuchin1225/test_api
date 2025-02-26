@@ -42,14 +42,19 @@ const routes = [
         method: "PUT",
         handler: (req, res) => {
             try {
-                const { courseId } = req.params;
+                const courseId = Number(req.params.courseId);
                 const { id, teacherID, title, description, createTime, validTime, startTime, endTime, max } = req.body;
                 if (!courseId || !title || !validTime || !startTime || !endTime || !max) {
                     const error = new Error("錯誤請求.");
                     error.status = 400;
                     throw error;
                 }
-                const index = courseList.findIndex(item => item.id === Number(courseId));
+                const index = courseList.findIndex(item => item.id === courseId);
+                if(index === -1) {
+                    const error = new Error("課程不存在.");
+                    error.status = 404;
+                    throw error;
+                }
                 courseList[index] = {
                     ...courseList[index],
                     title,
@@ -71,16 +76,22 @@ const routes = [
         method: "GET",
         handler: (req, res) => {
             try {
-                const { teacherId } = req.params;
+                const teacherId = Number(req.params.teacherId);
                 if (!teacherId) {
                     const error = new Error("錯誤請求.");
                     error.status = 400;
                     throw error;
                 }
-                const courseForTeacher = courseList.filter(item => item.teacherID === Number(teacherId));
+                const index = courseList.findIndex(item => item.teacherID === teacherId);
+                if(index === -1) {
+                    const error = new Error("查無講師課程.");
+                    error.status = 404;
+                    throw error;
+                }
+                const courseForTeacher = courseList.filter(item => item.teacherID === teacherId);
                 res.status(200).json(courseForTeacher);
             } catch (error) {
-                res.status(error.status).json({});
+                res.status(error.status).json([]);
             }
         }
     },
